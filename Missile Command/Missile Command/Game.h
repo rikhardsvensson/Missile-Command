@@ -23,7 +23,8 @@ private:
 	MissileBase missileBase;
 	City cities[6];
 
-	std::vector<Missile> missiles;
+	float missileSpeed = 5.0;
+	std::vector<Missile*> missiles;
 
 	void update(sf::Time elapsedTime);
 	void render();

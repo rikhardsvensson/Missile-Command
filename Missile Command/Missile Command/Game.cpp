@@ -9,6 +9,13 @@ Game::Game()
 
 Game::~Game()
 {
+	for (int i = 0; i < missiles.size(); i++)
+	{
+		delete missiles[i];
+	}
+	missiles.clear();
+
+	delete window;
 }
 
 void Game::init()
@@ -20,14 +27,9 @@ void Game::init()
 	groundShape.setSize(sf::Vector2f(windowSize.x, windowSize.y / 15));
 	groundShape.setPosition(0, windowSize.y - groundShape.getSize().y);
 
-	sf::RectangleShape missileBaseShape;
-	missileBaseShape.setFillColor(sf::Color::White);
-	missileBaseShape.setSize(sf::Vector2f(windowSize.x / 20, windowSize.y / 20));
-	float missileBasePosX = windowSize.x / 2 - missileBaseShape.getSize().x / 2;
-	float missileBasePosY = windowSize.y - missileBaseShape.getSize().y - groundShape.getSize().y;
-	missileBaseShape.setPosition(missileBasePosX, missileBasePosY);
-	missileBase.setMissileBaseShape(missileBaseShape);
-	missileBase.setAlive(true);
+	sf::Vector2f missileBaseSize = sf::Vector2f(sf::Vector2f(windowSize.x / 20, windowSize.y / 20));
+	sf::Vector2f missileBasePosition = sf::Vector2f(windowSize.x / 2 - missileBaseSize.x / 2, windowSize.y - missileBaseSize.y - groundShape.getSize().y);
+	missileBase = MissileBase(missileBaseSize, missileBasePosition);
 
 	sf::RectangleShape cityShape;
 	cityShape.setFillColor(sf::Color::Blue);
@@ -68,19 +70,44 @@ void Game::update(sf::Time elapsedTime)
 	sf::Event event;
 	while (window->pollEvent(event))
 	{
-		if ((event.type == sf::Event::Closed) || ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape)))
+		switch (event.type)
 		{
+		case sf::Event::Closed:
 			window->close();
+			break;
+
+		case sf::Event::MouseButtonPressed:
+			if (event.mouseButton.button == sf::Mouse::Left)
+			{
+				sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
+				fireMissile(mousePos);
+			}
+			break;
+
+		case sf::Event::KeyPressed:
+			if (event.key.code == sf::Keyboard::Escape)
+			{
+				window->close();
+			}
+			break;
+
+		default:
 			break;
 		}
 	}
 
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	for (int i = 0; i < missiles.size(); i++)
 	{
-		sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
-		fireMissile(mousePos);
+		if (missiles[i]->getAlive())
+		{
+			missiles[i]->update();
+		}
+		else
+		{
+			delete missiles[i];
+			missiles.erase(missiles.begin() + i);
+		}
 	}
-
 }
 
 void Game::render()
@@ -95,10 +122,15 @@ void Game::render()
 
 	missileBase.render(window);
 
+	for (auto missile : missiles)
+	{
+		missile->render(window);
+	}
+
 	window->display();
 }
 
 void Game::fireMissile(sf::Vector2i mousePos)
 {
-	
+	missiles.push_back(new Missile(missileBase.getMissileOrigin(), sf::Vector2f(mousePos), missileSpeed));
 }
