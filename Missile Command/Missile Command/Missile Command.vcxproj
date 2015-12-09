@@ -89,16 +89,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="City.cpp" />
+    <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Missile.cpp" />
+    <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="MissileBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="City.h" />
+    <ClInclude Include="Explosion.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="Missile.h" />
     <ClInclude Include="MissileBase.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
