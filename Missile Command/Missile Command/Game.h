@@ -15,6 +15,7 @@ public:
 
 private:
 	//Hard coded data that should be moved to config files.
+	std::string fontPath = "arial.ttf";
 	sf::Vector2i windowSize = sf::Vector2i(1280, 720);
 	sf::Color groundColor = sf::Color(100, 50, 0);
 	sf::Color missileColor = sf::Color::Magenta;
@@ -25,21 +26,28 @@ private:
 	float meteorSpeed = 3;
 	float explosionMaximumRadius = 50;
 	float explosionPropagationSpeed = 3;
+	int ammunitionPerLevel = 30;
+	int initialNrOfMeteors = 12;
+	int increaseOfMeteorsPerLevel = 3;
 
 	sf::RenderWindow* window;
-	
+	sf::Font arial;
 	std::mt19937* mt;
 
 	sf::Color backgroundColor;
 	sf::RectangleShape groundShape;
 	MissileBase missileBase;
 	City cities[6];
+	sf::Text ammunitionText;
 
 	ProjectileParameters missileParameters;
 	std::vector<Projectile*> missiles;
 	ProjectileParameters meteorParameters;
 	std::vector<Projectile*> meteors;
 	std::vector<Explosion*> explosions;
+
+	int currentLevel = 1;
+	int currentAmmunition = ammunitionPerLevel;
 
 	void update(sf::Time elapsedTime);
 	void handleInput();

@@ -34,6 +34,11 @@ Game::~Game()
 
 void Game::init()
 {
+	if (!arial.loadFromFile(fontPath))
+	{
+		//TODO: error handling
+	}
+
 	backgroundColor = sf::Color(0, 0, 0);
 
 	groundShape = sf::RectangleShape();
@@ -44,6 +49,14 @@ void Game::init()
 	sf::Vector2f missileBaseSize = sf::Vector2f(sf::Vector2f(static_cast<float>(windowSize.x) / 20, static_cast<float>(windowSize.y) / 20));
 	sf::Vector2f missileBasePosition = sf::Vector2f(windowSize.x / 2 - missileBaseSize.x / 2, windowSize.y - missileBaseSize.y - groundShape.getSize().y);
 	missileBase = MissileBase(missileBaseSize, missileBasePosition);
+
+	ammunitionText.setColor(sf::Color::White);
+	ammunitionText.setCharacterSize(20);
+	ammunitionText.setFont(arial);
+	ammunitionText.setString(std::to_string(currentAmmunition));
+	sf::FloatRect ammunitionTextRect = ammunitionText.getGlobalBounds();
+	ammunitionText.setPosition(windowSize.x / 2 - ammunitionTextRect.width / 2, windowSize.y - groundShape.getSize().y);
+	
 
 	sf::RectangleShape cityShape;
 	cityShape.setFillColor(sf::Color::Blue);
@@ -230,13 +243,23 @@ void Game::render()
 		explosion->render(window);
 	}
 
+	window->draw(ammunitionText);
+
 	window->display();
 }
 
 void Game::fireMissile(sf::Vector2i mousePos)
 {
-	missileParameters.destination = sf::Vector2f(mousePos);
-	missiles.push_back(new Projectile(missileParameters));
+	if (missileBase.getAlive() && currentAmmunition > 0)
+	{
+		missileParameters.destination = sf::Vector2f(mousePos);
+		missiles.push_back(new Projectile(missileParameters));
+
+		currentAmmunition--;
+		ammunitionText.setString(std::to_string(currentAmmunition));
+		sf::FloatRect ammunitionTextRect = ammunitionText.getGlobalBounds();
+		ammunitionText.setPosition(windowSize.x / 2 - ammunitionTextRect.width / 2, windowSize.y - groundShape.getSize().y);
+	}
 }
 
 void Game::dropMeteor()
