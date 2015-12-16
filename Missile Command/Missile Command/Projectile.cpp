@@ -13,6 +13,7 @@ Projectile::Projectile(const ProjectileParameters& mp)
 	explosionPropagationSpeed = mp.explosionPropagationSpeed;
 	alive = true;
 	dying = false;
+	reachedDestination = false;
 	if (mp.projectileType == ProjectileType::METEOR)
 	{
 		isWaveSpawner = mp.isWaveSpawner;
@@ -21,7 +22,6 @@ Projectile::Projectile(const ProjectileParameters& mp)
 	{
 		isWaveSpawner = false;
 	}
-
 	origToDest = destination - origin;
 	origToDestDist = sqrtf(origToDest.x * origToDest.x + origToDest.y * origToDest.y);
 }
@@ -34,9 +34,14 @@ Projectile::~Projectile()
 void Projectile::update(std::vector<Explosion*>* explosions)
 {
 	sf::Vector2f currPosToDest = currentPosition - destination;
-	if (sqrtf(currPosToDest.x * currPosToDest.x + currPosToDest.y * currPosToDest.y) <= speed || dying)
+	float currPosToDestDist = sqrtf(currPosToDest.x * currPosToDest.x + currPosToDest.y * currPosToDest.y);
+	if (currPosToDestDist <= speed || dying)
 	{
 		alive = false;
+		if (currPosToDestDist <= speed)
+		{
+			reachedDestination = true;
+		}
 		explosions->push_back(new Explosion(projectileType, currentPosition, explosionMaximumRadius, explosionPropagationSpeed, explosionColor));
 	}
 	else
@@ -93,4 +98,9 @@ bool Projectile::getIsWaveSpawner() const
 void Projectile::setIsWaveSpawner(bool val)
 {
 	isWaveSpawner = val;
+}
+
+bool Projectile::getReachedDestination() const
+{
+	return reachedDestination;
 }

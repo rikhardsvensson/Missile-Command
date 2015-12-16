@@ -4,6 +4,7 @@
 #include "City.h"
 #include "Projectile.h"
 #include "Explosion.h"
+#include "Score.h"
 
 class Game
 {
@@ -22,6 +23,8 @@ private:
 	sf::Color missileExplosionColor = sf::Color::Magenta;
 	sf::Color meteorExplosionColor = sf::Color::Green;
 	sf::Color meteorColor = sf::Color::Green;
+	int ammunitionTextCharacterSize = 20;
+	int scoreTextCharacterSize = 20;
 	float missileSpeed = 5;
 	float initialMeteorSpeed = 0.4f;
 	float meteorSpeedIncreasePerLevel = 0.2f;
@@ -36,6 +39,9 @@ private:
 	int maxNrOfMeteorsPerLevel = 20;
 	int maxNrOfMeteorsInWave = 5;
 	int maxNrOfSpawnersInWave = 1;
+	int scoreForMeteor = 25;
+	int scoreForCity = 100;
+	int scoreForRemainingMissile = 5;
 
 	//Necessities
 	sf::RenderWindow* window;
@@ -48,6 +54,7 @@ private:
 	MissileBase missileBase;
 	City cities[6];
 	sf::Text ammunitionText;
+	Score score;
 
 	//Movables
 	std::vector<Projectile*> missiles;
@@ -66,6 +73,7 @@ private:
 	void initMissileBase();
 	void initCities();
 	void initProjectileParameters();
+	void initText();
 	void update();
 	void handleInput();
 	void solveCollisions();

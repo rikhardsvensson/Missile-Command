@@ -17,6 +17,7 @@ public:
 	void setDying(bool val);
 	bool getIsWaveSpawner() const;
 	void setIsWaveSpawner(bool val);
+	bool getReachedDestination() const;
 private:
 	ProjectileType projectileType;
 	sf::Vector2f currentPosition;
@@ -26,6 +27,7 @@ private:
 	float speed;
 	bool alive;
 	bool dying;
+	bool reachedDestination;
 	bool isWaveSpawner;
 
 	sf::Vector2f origToDest;

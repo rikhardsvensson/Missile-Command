@@ -45,6 +45,7 @@ void Game::init()
 	initMissileBase();
 	initCities();
 	initProjectileParameters();
+	initText();
 
 	currentLevel = 0;
 	nrOfMeteorsLeftTilNextLevel = 0;
@@ -66,11 +67,6 @@ void Game::initMissileBase()
 	sf::Vector2f missileBaseSize = sf::Vector2f(sf::Vector2f(static_cast<float>(windowSize.x) / 20, static_cast<float>(windowSize.y) / 20));
 	sf::Vector2f missileBasePosition = sf::Vector2f(windowSize.x / 2 - missileBaseSize.x / 2, windowSize.y - missileBaseSize.y - groundShape.getSize().y);
 	missileBase = MissileBase(missileBaseSize, missileBasePosition, ammunitionPerLevel, missilesTilCooldown);
-
-	ammunitionText.setColor(sf::Color::White);
-	ammunitionText.setCharacterSize(20);
-	ammunitionText.setFont(arial);
-	setAmmunitionText(missileBase.getAmmunition());
 }
 
 void Game::initCities()
@@ -108,6 +104,16 @@ void Game::initProjectileParameters()
 
 	meteorParameters.explosionMaximumRadius = missileParameters.explosionMaximumRadius = explosionMaximumRadius;
 	meteorParameters.explosionPropagationSpeed = missileParameters.explosionPropagationSpeed = explosionPropagationSpeed;
+}
+
+void Game::initText()
+{
+	ammunitionText.setColor(sf::Color::White);
+	ammunitionText.setCharacterSize(ammunitionTextCharacterSize);
+	ammunitionText.setFont(arial);
+	setAmmunitionText(missileBase.getAmmunition());
+
+	score = Score(&arial, sf::Vector2f(5, 5), sf::Color::White, scoreTextCharacterSize);
 }
 
 int Game::run()
@@ -150,7 +156,10 @@ void Game::update()
 			{
 				dropMeteorWave();
 			}
-
+			if (!meteors[i]->getReachedDestination())
+			{
+				score.offsetScore(scoreForMeteor);
+			}
 			delete meteors[i];
 			meteors.erase(meteors.begin() + i);
 		}
@@ -261,6 +270,8 @@ void Game::render()
 
 	missileBase.render(window);
 
+	score.render(window);
+
 	for (auto missile : missiles)
 	{
 		missile->render(window);
@@ -337,6 +348,23 @@ void Game::increaseLevel()
 	{
 		nrOfMeteorsLeftTilNextLevel = maxNrOfMeteorsPerLevel;
 	}
+
+	if (currentLevel > 0)
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			if (cities[i].getAlive())
+			{
+				score.offsetScore(scoreForCity);
+			}
+		}
+
+		for (int i = 0; i < missileBase.getAmmunition(); i++)
+		{
+			score.offsetScore(scoreForRemainingMissile);
+		}
+	}
+
 	missileBase.setAmmunition(ammunitionPerLevel);
 	setAmmunitionText(missileBase.getAmmunition());
 	currentLevel++;
