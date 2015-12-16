@@ -5,16 +5,13 @@ MissileBase::MissileBase()
 
 }
 
-MissileBase::MissileBase(sf::Vector2f size, sf::Vector2f position)
+MissileBase::MissileBase(sf::Vector2f size, sf::Vector2f position, int ammunition, int missilesTilCooldown)
 {
 	missileBaseShape.setFillColor(sf::Color::White);
 	missileBaseShape.setSize(size);
 	missileBaseShape.setPosition(position);
-	alive = true;
-
-	deadMissileBaseShape = missileBaseShape;
-	deadMissileBaseShape.move(0, deadMissileBaseShape.getSize().y * 0.8);
-	deadMissileBaseShape.setScale(1.0, 0.2);
+	this->ammunition = ammunition;
+	currentMissilesTilCooldown = missilesTilCooldown;
 
 	missileOrigin = position;
 	missileOrigin.x += size.x / 2;
@@ -27,14 +24,7 @@ MissileBase::~MissileBase()
 
 void MissileBase::render(sf::RenderWindow* window)
 {
-	if (alive)
-	{
-		window->draw(missileBaseShape);
-	}
-	else
-	{
-		window->draw(deadMissileBaseShape);
-	}
+	window->draw(missileBaseShape);
 }
 
 void MissileBase::setMissileBaseShape(sf::RectangleShape val)
@@ -54,18 +44,37 @@ sf::RectangleShape MissileBase::getMissileBaseShape() const
 	return missileBaseShape;
 }
 
-void MissileBase::setAlive(bool val)
-{
-	alive = val;
-	missileBaseShape.setScale(1.0, 0.1);
-}
-
 sf::Vector2f MissileBase::getMissileOrigin()
 {
 	return missileOrigin;
 }
 
-bool MissileBase::getAlive() const
+int MissileBase::getAmmunition() const
 {
-	return alive;
+	return ammunition;
+}
+
+void MissileBase::setAmmunition(int val)
+{
+	ammunition = val;
+}
+
+void MissileBase::offsetAmmunition(int val)
+{
+	ammunition += val;
+}
+
+int MissileBase::getCurrentMissilesTilCooldown() const
+{
+	return currentMissilesTilCooldown;
+}
+
+void MissileBase::setCurrentMissilesTilCooldown(int val)
+{
+	currentMissilesTilCooldown = val;
+}
+
+void MissileBase::offsetCurrentMissilesTilCooldown(int val)
+{
+	currentMissilesTilCooldown += val;
 }
