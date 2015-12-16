@@ -13,6 +13,8 @@ public:
 	bool getAlive() const;
 	ProjectileType getProjectileType() const;
 	sf::CircleShape getExplosionShape() const;
+	bool isExpended() const;
+	void setExpended(bool val);
 private:
 	ProjectileType projectileType;
 	sf::Vector2f centerPosition;
@@ -20,4 +22,5 @@ private:
 	float maximumRadius;
 	float propagationSpeed;
 	bool alive;
+	bool expended;
 };

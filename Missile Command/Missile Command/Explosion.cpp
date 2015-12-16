@@ -10,6 +10,7 @@ Explosion::Explosion(ProjectileType projectileType, sf::Vector2f centerPosition,
 	this->maximumRadius = maximumRadius;
 	this->propagationSpeed = propagationSpeed;
 	alive = true;
+	expended = false;
 }
 
 Explosion::~Explosion()
@@ -52,4 +53,14 @@ ProjectileType Explosion::getProjectileType() const
 sf::CircleShape Explosion::getExplosionShape() const
 {
 	return explosionShape;
+}
+
+bool Explosion::isExpended() const
+{
+	return expended;
+}
+
+void Explosion::setExpended(bool val)
+{
+	expended = val;
 }
