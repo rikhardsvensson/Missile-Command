@@ -33,8 +33,17 @@ void City::setCityShape(sf::RectangleShape val)
 
 sf::Vector2f City::getMeteorTarget()
 {
-	sf::Vector2f centerPos = cityShape.getPosition();
-	centerPos.x += cityShape.getSize().x / 2;
+	sf::Vector2f centerPos;
+	if (alive)
+	{
+		centerPos = cityShape.getPosition();
+		centerPos.x += cityShape.getSize().x / 2;
+	}
+	else
+	{
+		centerPos = deadCityShape.getPosition();
+		centerPos.x += deadCityShape.getSize().x / 2;
+	}
 	return centerPos;
 }
 
