@@ -23,37 +23,57 @@ private:
 	sf::Color meteorExplosionColor = sf::Color::Green;
 	sf::Color meteorColor = sf::Color::Green;
 	float missileSpeed = 5;
-	float meteorSpeed = 3;
+	float initialMeteorSpeed = 0.4f;
+	float meteorSpeedIncreasePerLevel = 0.2f;
 	float explosionMaximumRadius = 50;
-	float explosionPropagationSpeed = 3;
+	float explosionPropagationSpeed = 0.75f;
 	int ammunitionPerLevel = 30;
 	int initialNrOfMeteors = 12;
 	int increaseOfMeteorsPerLevel = 3;
+	int baseHitAmmunitionOffset = -10;
+	int missilesTilCooldown = 3;
+	int missileBaseCooldownTime = 3;
+	int maxNrOfMeteorsPerLevel = 20;
+	int maxNrOfMeteorsInWave = 5;
+	int maxNrOfSpawnersInWave = 1;
 
+	//Necessities
 	sf::RenderWindow* window;
 	sf::Font arial;
 	std::mt19937* mt;
 
+	//Visuals
 	sf::Color backgroundColor;
 	sf::RectangleShape groundShape;
 	MissileBase missileBase;
 	City cities[6];
 	sf::Text ammunitionText;
 
-	ProjectileParameters missileParameters;
+	//Movables
 	std::vector<Projectile*> missiles;
-	ProjectileParameters meteorParameters;
 	std::vector<Projectile*> meteors;
 	std::vector<Explosion*> explosions;
 
-	int currentLevel = 1;
-	int currentAmmunition = ammunitionPerLevel;
+	//Utils
+	ProjectileParameters missileParameters;
+	ProjectileParameters meteorParameters;
+	sf::Clock missileBaseCooldownTimer;
 
-	void update(sf::Time elapsedTime);
+	int currentLevel;
+	int nrOfMeteorsLeftTilNextLevel;
+
+	void initGround();
+	void initMissileBase();
+	void initCities();
+	void initProjectileParameters();
+	void update();
 	void handleInput();
 	void solveCollisions();
 	void render();
 	void fireMissile(sf::Vector2i mousePos);
-	void dropMeteor();
-	
+	void dropMeteor(bool isWaveSpawner);
+	void setAmmunitionText(int ammunition);
+	void increaseLevel();
+	void setRandomBackgroundColor();
+	void dropMeteorWave();
 };
