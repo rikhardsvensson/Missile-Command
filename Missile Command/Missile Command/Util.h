@@ -15,6 +15,7 @@ struct ProjectileParameters
 	float projectileSpeed;
 	float explosionMaximumRadius;
 	float explosionPropagationSpeed;
+	bool isWaveSpawner;
 };
 
 inline sf::Vector2f getCircleCenter(sf::CircleShape circle)

@@ -13,6 +13,14 @@ Projectile::Projectile(const ProjectileParameters& mp)
 	explosionPropagationSpeed = mp.explosionPropagationSpeed;
 	alive = true;
 	dying = false;
+	if (mp.projectileType == ProjectileType::METEOR)
+	{
+		isWaveSpawner = mp.isWaveSpawner;
+	}
+	else
+	{
+		isWaveSpawner = false;
+	}
 
 	origToDest = destination - origin;
 	origToDestDist = sqrtf(origToDest.x * origToDest.x + origToDest.y * origToDest.y);
@@ -75,4 +83,14 @@ sf::Vector2f Projectile::getCurrentPosition() const
 void Projectile::setDying(bool val)
 {
 	dying = val;
+}
+
+bool Projectile::getIsWaveSpawner() const
+{
+	return isWaveSpawner;
+}
+
+void Projectile::setIsWaveSpawner(bool val)
+{
+	isWaveSpawner = val;
 }
