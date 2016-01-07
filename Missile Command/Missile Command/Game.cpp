@@ -11,23 +11,8 @@ Game::Game(std::mt19937* mt)
 
 Game::~Game()
 {
-	for (unsigned i = 0; i < missiles.size(); i++)
-	{
-		delete missiles[i];
-	}
-	missiles.clear();
-
-	for (unsigned i = 0; i < explosions.size(); i++)
-	{
-		delete explosions[i];
-	}
-	explosions.clear();
-
-	for (unsigned i = 0; i < meteors.size(); i++)
-	{
-		delete meteors[i];
-	}
-	meteors.clear();
+	score.writeHighScore(scorePath);
+	clean();
 
 	delete window;
 }
@@ -38,6 +23,8 @@ void Game::init()
 	{
 		//TODO: error handling
 	}
+
+	isGameOver = false;
 
 	backgroundColor = sf::Color(0, 0, 0);
 
@@ -113,7 +100,7 @@ void Game::initText()
 	ammunitionText.setFont(arial);
 	setAmmunitionText(missileBase.getAmmunition());
 
-	score = Score(&arial, sf::Vector2f(5, 5), sf::Color::White, scoreTextCharacterSize);
+	score = Score(&arial, sf::Vector2f(5, 5), sf::Color::White, scoreTextCharacterSize, scorePath);
 }
 
 int Game::run()
@@ -351,10 +338,12 @@ void Game::increaseLevel()
 
 	if (currentLevel > 0)
 	{
+		isGameOver = true;
 		for (int i = 0; i < 6; i++)
 		{
 			if (cities[i].getAlive())
 			{
+				isGameOver = false;
 				score.offsetScore(scoreForCity);
 			}
 		}
@@ -365,9 +354,17 @@ void Game::increaseLevel()
 		}
 	}
 
-	missileBase.setAmmunition(ammunitionPerLevel);
-	setAmmunitionText(missileBase.getAmmunition());
-	currentLevel++;
+	if (isGameOver)
+	{
+		score.writeHighScore(scorePath);
+		resetGame();
+	}
+	else
+	{
+		missileBase.setAmmunition(ammunitionPerLevel);
+		setAmmunitionText(missileBase.getAmmunition());
+		currentLevel++;
+	}
 }
 
 void Game::setRandomBackgroundColor()
@@ -405,4 +402,33 @@ void Game::dropMeteorWave()
 		dropMeteor(false);
 		nrOfMeteorsInWave--;
 	}
+}
+
+void Game::resetGame()
+{
+	score.writeHighScore(scorePath);
+	clean();
+	//TODO: game over screen
+	init();
+}
+
+void Game::clean()
+{
+	for (unsigned i = 0; i < missiles.size(); i++)
+	{
+		delete missiles[i];
+	}
+	missiles.clear();
+
+	for (unsigned i = 0; i < explosions.size(); i++)
+	{
+		delete explosions[i];
+	}
+	explosions.clear();
+
+	for (unsigned i = 0; i < meteors.size(); i++)
+	{
+		delete meteors[i];
+	}
+	meteors.clear();
 }

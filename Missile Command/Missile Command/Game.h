@@ -11,12 +11,14 @@ class Game
 public:
 	Game(std::mt19937* mt);
 	~Game();
+
 	int run();
 	void init();
 
 private:
 	//Hard coded data that should be moved to config files.
 	std::string fontPath = "arial.ttf";
+	std::string scorePath = "data.txt";
 	sf::Vector2i windowSize = sf::Vector2i(1280, 720);
 	sf::Color groundColor = sf::Color(100, 50, 0);
 	sf::Color missileColor = sf::Color::Magenta;
@@ -26,7 +28,8 @@ private:
 	int ammunitionTextCharacterSize = 20;
 	int scoreTextCharacterSize = 20;
 	float missileSpeed = 5;
-	float initialMeteorSpeed = 0.4f;
+	//float initialMeteorSpeed = 0.4f;
+	float initialMeteorSpeed = 10.0f;
 	float meteorSpeedIncreasePerLevel = 0.2f;
 	float explosionMaximumRadius = 50;
 	float explosionPropagationSpeed = 0.75f;
@@ -65,6 +68,7 @@ private:
 	ProjectileParameters missileParameters;
 	ProjectileParameters meteorParameters;
 	sf::Clock missileBaseCooldownTimer;
+	bool isGameOver;
 
 	int currentLevel;
 	int nrOfMeteorsLeftTilNextLevel;
@@ -84,4 +88,6 @@ private:
 	void increaseLevel();
 	void setRandomBackgroundColor();
 	void dropMeteorWave();
+	void resetGame();
+	void clean();
 };
