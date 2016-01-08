@@ -408,8 +408,15 @@ void Game::resetGame()
 {
 	score.writeHighScore(scorePath);
 	clean();
-	//TODO: game over screen
-	init();
+	GameOverScreen gameOverScreen = GameOverScreen();
+	if (gameOverScreen.run() == GameOverScreen::RESTART)
+	{
+		init();
+	}
+	else
+	{
+		window->close();
+	}
 }
 
 void Game::clean()

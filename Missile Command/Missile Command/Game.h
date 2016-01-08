@@ -5,6 +5,7 @@
 #include "Projectile.h"
 #include "Explosion.h"
 #include "Score.h"
+#include "GameOverScreen.h"
 
 class Game
 {
@@ -16,6 +17,7 @@ public:
 	void init();
 
 private:
+
 	//Hard coded data that should be moved to config files.
 	std::string fontPath = "arial.ttf";
 	std::string scorePath = "data.txt";
