@@ -6,12 +6,12 @@ Score::Score()
 	scoreText = sf::Text();
 }
 
-Score::Score(sf::Font* font, sf::Vector2f position, sf::Color color, int characterSize, std::string scorePath)
+Score::Score(sf::Font* font, sf::Vector2f position, sf::Color color, int characterSize, int highScore, std::string scoreName, std::string highScoreName)
 {
 	score = 0;
-	highScore = 0;
-	this->scorePath = scorePath;
-	loadHighscore(scorePath);
+	this->highScore = highScore;
+	this->scoreName = scoreName;
+	this->highScoreName = highScoreName;
 	scoreText = sf::Text("", *font, characterSize);
 	updateScoreText();
 	scoreText.setColor(color);
@@ -36,6 +36,15 @@ int Score::getScore() const
 int Score::getHighScore() const
 {
 	return highScore;
+}
+
+void Score::updateHighScore()
+{
+	if (score > highScore)
+	{
+		highScore = score;
+		updateScoreText();
+	}
 }
 
 void Score::offsetScore(int val)
@@ -68,31 +77,6 @@ void Score::setPosition(sf::Vector2f val)
 void Score::setColor(sf::Color val)
 {
 	scoreText.setColor(val);
-}
-
-void Score::loadHighscore(std::string path)
-{
-	std::string line;
-	std::ifstream scoreFile(path);
-	if (scoreFile.is_open())
-	{
-		std::getline(scoreFile, line);
-		highScore = std::stoi(line);
-		scoreFile.close();
-	}
-}
-
-void Score::writeHighScore(std::string path)
-{
-	if (score > highScore)
-	{
-		std::ofstream scoreFile(path, std::ofstream::out);
-		if (scoreFile.is_open())
-		{
-			scoreFile << score;
-			scoreFile.close();
-		}
-	}
 }
 
 void Score::updateScoreText()

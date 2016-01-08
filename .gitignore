@@ -196,3 +196,4 @@ FakesAssemblies/
 *.opt
 Missile Command/Missile Command/data.txt
 Missile Command/Missile Command/~AutoRecover.Missile Command.vcxproj
+Missile Command/Missile Command/settings.json

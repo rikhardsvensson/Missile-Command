@@ -58,7 +58,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\SFML-2.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\SFML-2.3.2\include\;$(SolutionDir)..\cereal-1.1.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -78,7 +78,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\SFML-2.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\SFML-2.3.2\include\;$(SolutionDir)..\cereal-1.1.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -101,6 +101,7 @@
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="MissileBase.cpp" />
     <ClCompile Include="Score.cpp" />
+    <ClCompile Include="SettingsParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Button.h" />
@@ -111,7 +112,7 @@
     <ClInclude Include="MissileBase.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Score.h" />
-    <ClInclude Include="Settings.h" />
+    <ClInclude Include="SettingsParser.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>

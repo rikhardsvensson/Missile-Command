@@ -9,7 +9,8 @@ public:
 
 	GameOverScreen();
 	~GameOverScreen();
-	int run();
+	int update();
+	void render(sf::RenderWindow* window);
 
 private:
 	sf::Text gameOverText;

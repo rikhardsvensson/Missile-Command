@@ -13,7 +13,7 @@ Button::Button(sf::Text buttonText, sf::RectangleShape buttonShape)
 
 int Button::update()
 {
-
+	return -1;
 }
 
 void Button::render(sf::RenderWindow* window)
