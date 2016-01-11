@@ -5,13 +5,16 @@ MissileBase::MissileBase()
 
 }
 
-MissileBase::MissileBase(sf::Vector2f size, sf::Vector2f position, int ammunition, int missilesTilCooldown)
+MissileBase::MissileBase(sf::Vector2f size, sf::Vector2f position, Settings* settings)
 {
 	missileBaseShape.setFillColor(sf::Color::White);
 	missileBaseShape.setSize(size);
 	missileBaseShape.setPosition(position);
-	this->ammunition = ammunition;
-	currentMissilesTilCooldown = missilesTilCooldown;
+	
+	this->ammunition = settings->ammunitionPerLevel;
+	ammunitionText.setColor(sf::Color::White);
+	ammunitionText.setCharacterSize(settings->ammunitionTextCharacterSize);
+	ammunitionText.setFont(settings->font);
 
 	missileOrigin = position;
 	missileOrigin.x += size.x / 2;
@@ -25,6 +28,7 @@ MissileBase::~MissileBase()
 void MissileBase::render(sf::RenderWindow* window)
 {
 	window->draw(missileBaseShape);
+	window->draw(ammunitionText);
 }
 
 void MissileBase::setMissileBaseShape(sf::RectangleShape val)
@@ -34,9 +38,7 @@ void MissileBase::setMissileBaseShape(sf::RectangleShape val)
 
 sf::Vector2f MissileBase::getMeteorTarget()
 {
-	sf::Vector2f centerPos = missileBaseShape.getPosition();
-	centerPos.x += missileBaseShape.getSize().x / 2;
-	return centerPos;
+	return getRectangleCenterPosition(missileBaseShape);
 }
 
 sf::RectangleShape MissileBase::getMissileBaseShape() const
@@ -57,24 +59,20 @@ int MissileBase::getAmmunition() const
 void MissileBase::setAmmunition(int val)
 {
 	ammunition = val;
+	updateAmmunitionText();
 }
 
 void MissileBase::offsetAmmunition(int val)
 {
 	ammunition += val;
+	updateAmmunitionText();
 }
 
-int MissileBase::getCurrentMissilesTilCooldown() const
+void MissileBase::updateAmmunitionText()
 {
-	return currentMissilesTilCooldown;
-}
-
-void MissileBase::setCurrentMissilesTilCooldown(int val)
-{
-	currentMissilesTilCooldown = val;
-}
-
-void MissileBase::offsetCurrentMissilesTilCooldown(int val)
-{
-	currentMissilesTilCooldown += val;
+	ammunitionText.setString(std::to_string(ammunition));
+	sf::FloatRect ammunitionTextRect = ammunitionText.getGlobalBounds();
+	sf::Vector2f missileBasePos = missileBaseShape.getPosition();
+	sf::Vector2f missileBaseSize = missileBaseShape.getSize();
+	ammunitionText.setPosition(missileBasePos.x + missileBaseSize.x / 2 - ammunitionTextRect.width / 2, missileBasePos.y + missileBaseSize.y);
 }

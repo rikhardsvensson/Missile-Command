@@ -30,8 +30,8 @@ private:
 	bool reachedDestination;
 	bool isWaveSpawner;
 
-	sf::Vector2f origToDest;
-	float origToDestDist;
+	sf::Vector2f origToDest; //Describes the path the projectile will travel as a vector.
+	float origToDestDist; //The total distance of aforementioned path.
 
 	sf::Color explosionColor;
 	float explosionMaximumRadius;

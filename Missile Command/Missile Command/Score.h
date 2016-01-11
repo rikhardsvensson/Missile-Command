@@ -2,12 +2,13 @@
 #include "SFML/Graphics.hpp"
 #include <iostream>
 #include <fstream>
+#include "SettingsParser.h"
 
 class Score
 {
 public:
 	Score();
-	Score(sf::Font* font, sf::Vector2f position, sf::Color color, int characterSize, int highScore, std::string scoreName, std::string highScoreName);
+	Score(Settings* settings, sf::Vector2f position, sf::Color color);
 	~Score();
 
 	void render(sf::RenderWindow* window);

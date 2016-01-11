@@ -27,8 +27,8 @@ void City::setCityShape(sf::RectangleShape val)
 	cityShape = val;
 
 	deadCityShape = val;
-	deadCityShape.move(0, deadCityShape.getSize().y * 0.8);
-	deadCityShape.setScale(1.0, 0.2);
+	deadCityShape.move(0.0f, deadCityShape.getSize().y * 0.8f);
+	deadCityShape.setScale(1.0f, 0.2f);
 }
 
 sf::Vector2f City::getMeteorTarget()
@@ -36,13 +36,11 @@ sf::Vector2f City::getMeteorTarget()
 	sf::Vector2f centerPos;
 	if (alive)
 	{
-		centerPos = cityShape.getPosition();
-		centerPos.x += cityShape.getSize().x / 2;
+		centerPos = getRectangleCenterPosition(cityShape);
 	}
 	else
 	{
-		centerPos = deadCityShape.getPosition();
-		centerPos.x += deadCityShape.getSize().x / 2;
+		centerPos = getRectangleCenterPosition(deadCityShape);
 	}
 	return centerPos;
 }

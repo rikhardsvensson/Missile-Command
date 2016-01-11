@@ -4,46 +4,51 @@ Game::Game(std::mt19937* mt)
 {
 	settings = settingsParser.getSettings();
 
-	sf::VideoMode videoMode = sf::VideoMode(settings->windowSize.x, settings->windowSize.y, 32);
-	window = new sf::RenderWindow(videoMode, "Missile Command", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
-	window->setVerticalSyncEnabled(true);
+	window = new sf::RenderWindow();
+	createWindow(settings->fullscreen);
 
 	this->mt = mt;
 }
 
 Game::~Game()
 {
+	score.updateHighScore();
 	settings->highScore = score.getHighScore();
 	settingsParser.setSettings(settings);
-	clean();
+	cleanMovables();
 	delete window;
 }
 
 void Game::init()
 {
-	if (!arial.loadFromFile(settings->fontPath))
-	{
-		//TODO: error handling
-	}
-
 	isGameOver = false;
-
 	backgroundColor = sf::Color(0, 0, 0);
+	currentLevel = 0;
+	nrOfMeteorsLeftTilNextLevel = 0;
 
 	initGround();
 	initMissileBase();
 	initCities();
 	initProjectileParameters();
-	initText();
-
-	currentLevel = 0;
-	nrOfMeteorsLeftTilNextLevel = 0;
-
-	missileBaseCooldownTimer = sf::Clock();
-	//TODO: complete the cooldown timer
+	score = Score(settings, sf::Vector2f(5, 5), sf::Color::White);
+	gameOverScreen.init(settings);
 }
 
-void Game::clean()
+void Game::createWindow(bool fullscreen)
+{
+	sf::VideoMode videoMode = sf::VideoMode(settings->resolution.x, settings->resolution.y, 32);
+	if (fullscreen)
+	{
+		window->create(videoMode, "Missile Command", sf::Style::Fullscreen);
+	}
+	else
+	{
+		window->create(videoMode, "Missile Command", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
+	}
+	window->setVerticalSyncEnabled(true);
+}
+
+void Game::cleanMovables()
 {
 	for (unsigned i = 0; i < missiles.size(); i++)
 	{
@@ -68,23 +73,23 @@ void Game::initGround()
 {
 	groundShape = sf::RectangleShape();
 	groundShape.setFillColor(settings->groundColor);
-	groundShape.setSize(sf::Vector2f(static_cast<float>(settings->windowSize.x), static_cast<float>(settings->windowSize.y) / 15));
-	groundShape.setPosition(0, settings->windowSize.y - groundShape.getSize().y);
+	groundShape.setSize(sf::Vector2f(static_cast<float>(settings->resolution.x), static_cast<float>(settings->resolution.y) / 15));
+	groundShape.setPosition(0, settings->resolution.y - groundShape.getSize().y);
 }
 
 void Game::initMissileBase()
 {
-	sf::Vector2f missileBaseSize = sf::Vector2f(sf::Vector2f(static_cast<float>(settings->windowSize.x) / 20, static_cast<float>(settings->windowSize.y) / 20));
-	sf::Vector2f missileBasePosition = sf::Vector2f(settings->windowSize.x / 2 - missileBaseSize.x / 2, settings->windowSize.y - missileBaseSize.y - groundShape.getSize().y);
-	missileBase = MissileBase(missileBaseSize, missileBasePosition, settings->ammunitionPerLevel, settings->missilesTilCooldown);
+	sf::Vector2f missileBaseSize = sf::Vector2f(sf::Vector2f(static_cast<float>(settings->resolution.x) / 20, static_cast<float>(settings->resolution.y) / 20));
+	sf::Vector2f missileBasePosition = sf::Vector2f(settings->resolution.x / 2 - missileBaseSize.x / 2, settings->resolution.y - missileBaseSize.y - groundShape.getSize().y);
+	missileBase = MissileBase(missileBaseSize, missileBasePosition, settings);
 }
 
 void Game::initCities()
 {
 	sf::RectangleShape cityShape;
 	cityShape.setFillColor(sf::Color::Blue);
-	cityShape.setSize(sf::Vector2f(static_cast<float>(settings->windowSize.x) / 20, static_cast<float>(settings->windowSize.y) / 20));
-	float cityPosY = settings->windowSize.y - cityShape.getSize().y - groundShape.getSize().y;
+	cityShape.setSize(sf::Vector2f(static_cast<float>(settings->resolution.x) / 20, static_cast<float>(settings->resolution.y) / 20));
+	float cityPosY = settings->resolution.y - cityShape.getSize().y - groundShape.getSize().y;
 	for (int i = 0; i < 6; i++)
 	{
 		int offsetPosX = i + 1;
@@ -92,7 +97,7 @@ void Game::initCities()
 		{
 			offsetPosX++;
 		}
-		float cityPosX = offsetPosX * (settings->windowSize.x / 8) - cityShape.getSize().x / 2;
+		float cityPosX = offsetPosX * (settings->resolution.x / 8) - cityShape.getSize().x / 2;
 		cityShape.setPosition(cityPosX, cityPosY);
 		cities[i].setCityShape(cityShape);
 		cities[i].setAlive(true);
@@ -116,16 +121,6 @@ void Game::initProjectileParameters()
 	meteorParameters.explosionPropagationSpeed = missileParameters.explosionPropagationSpeed = settings->explosionPropagationSpeed;
 }
 
-void Game::initText()
-{
-	ammunitionText.setColor(sf::Color::White);
-	ammunitionText.setCharacterSize(settings->ammunitionTextCharacterSize);
-	ammunitionText.setFont(arial);
-	setAmmunitionText(missileBase.getAmmunition());
-
-	score = Score(&arial, sf::Vector2f(5, 5), sf::Color::White, settings->scoreTextCharacterSize, settings->highScore, settings->scoreName, settings->highScoreName);
-}
-
 int Game::run()
 {
 	while (window->isOpen())
@@ -142,9 +137,9 @@ void Game::update()
 
 	if (isGameOver)
 	{
-		if (gameOverScreen.update() == GameOverScreen::RESTART)
+		if (gameOverScreen.update(window, settings) == GameOverScreen::RESTART)
 		{
-			
+			resetGame();
 		}
 	}
 	else
@@ -219,16 +214,23 @@ void Game::handleInput()
 			window->close();
 			break;
 		case sf::Event::MouseButtonPressed:
-			if (event.mouseButton.button == sf::Mouse::Left && !isGameOver)
+			if (event.mouseButton.button == sf::Mouse::Left)
 			{
-				sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
-				fireMissile(mousePos);
+				if (!isGameOver)
+				{
+					fireMissile(getScaledMouseCoords(window, settings));
+				}
 			}
 			break;
 		case sf::Event::KeyPressed:
 			if (event.key.code == sf::Keyboard::Escape)
 			{
 				window->close();
+			}
+			if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::RAlt)) && event.key.code == sf::Keyboard::Return)
+			{
+				settings->fullscreen = !settings->fullscreen;
+				createWindow(settings->fullscreen);
 			}
 			break;
 		default:
@@ -250,24 +252,21 @@ void Game::solveCollisions()
 		}
 		if (explosion->getProjectileType() == ProjectileType::METEOR)
 		{
-			if (!explosion->isExpended())
+			if (!explosion->isExpended()) //Explosions expend themselves when hitting a city or the missile base as to avoid multiple collision calculations.
 			{
-				if (rectangleSphereCollision(missileBase.getMissileBaseShape(), explosion->getExplosionShape()))
+				if (rectangleCircleCollision(missileBase.getMissileBaseShape(), explosion->getExplosionShape()))
 				{
 					if (missileBase.getAmmunition() >= 0)
 					{
-						missileBase.offsetAmmunition(settings->baseHitAmmunitionOffset);
-						if (missileBase.getAmmunition() < 0)
-						{
-							missileBase.setAmmunition(0);
-						}
-						setAmmunitionText(missileBase.getAmmunition());
+						int updatedAmmunition = missileBase.getAmmunition() + settings->baseHitAmmunitionOffset;
+						updatedAmmunition = std::max(updatedAmmunition, 0); //Ensures that ammunition can not be lower than zero.
+						missileBase.setAmmunition(updatedAmmunition);
 					}
 					explosion->setExpended(true);
 				}
 				for (int i = 0; i < 6; i++)
 				{
-					if (rectangleSphereCollision(cities[i].getCityShape(), explosion->getExplosionShape()))
+					if (rectangleCircleCollision(cities[i].getCityShape(), explosion->getExplosionShape()))
 					{
 						cities[i].setAlive(false);
 						explosion->setExpended(true);
@@ -305,8 +304,6 @@ void Game::render()
 		explosion->render(window);
 	}
 
-	window->draw(ammunitionText);
-
 	if (isGameOver)
 	{
 		gameOverScreen.render(window);
@@ -321,22 +318,17 @@ void Game::fireMissile(sf::Vector2i mousePos)
 	{
 		if (missileBase.getAmmunition() > 0)
 		{
-			if (settings->missilesTilCooldown > 0)
-			{
-				missileParameters.destination = sf::Vector2f(mousePos);
-				missiles.push_back(new Projectile(missileParameters));
+			missileParameters.destination = sf::Vector2f(mousePos);
+			missiles.push_back(new Projectile(missileParameters));
 
-				missileBase.offsetAmmunition(-1);
-				setAmmunitionText(missileBase.getAmmunition());
-				missileBase.offsetCurrentMissilesTilCooldown(-1);
-			}
+			missileBase.offsetAmmunition(-1);
 		}
 	}
 }
 
 void Game::dropMeteor(bool isWaveSpawner)
 {
-	std::uniform_real_distribution<float> randMeteorOrigin(0.0, static_cast<float>(settings->windowSize.x));
+	std::uniform_real_distribution<float> randMeteorOrigin(0.0, static_cast<float>(settings->resolution.x));
 	std::uniform_int_distribution<int> randMeteorDestination(0, 6);
 
 	meteorParameters.origin = sf::Vector2f(randMeteorOrigin(*mt), 0);
@@ -356,13 +348,6 @@ void Game::dropMeteor(bool isWaveSpawner)
 	meteors.push_back(new Projectile(meteorParameters));
 
 	nrOfMeteorsLeftTilNextLevel--;
-}
-
-void Game::setAmmunitionText(int ammunition)
-{
-	ammunitionText.setString(std::to_string(missileBase.getAmmunition()));
-	sf::FloatRect ammunitionTextRect = ammunitionText.getGlobalBounds();
-	ammunitionText.setPosition(settings->windowSize.x / 2 - ammunitionTextRect.width / 2, settings->windowSize.y - groundShape.getSize().y);
 }
 
 void Game::increaseLevel()
@@ -394,14 +379,9 @@ void Game::increaseLevel()
 		score.updateHighScore();
 	}
 
-	if (isGameOver)
-	{
-		clean();
-	}
-	else
+	if (!isGameOver)
 	{
 		missileBase.setAmmunition(settings->ammunitionPerLevel);
-		setAmmunitionText(missileBase.getAmmunition());
 		currentLevel++;
 	}
 }
@@ -445,15 +425,16 @@ void Game::dropMeteorWave()
 
 void Game::resetGame()
 {
-	settings->highScore = score.getHighScore();
-	clean();
-	GameOverScreen gameOverScreen = GameOverScreen();
-	if (gameOverScreen.run() == GameOverScreen::RESTART)
+	isGameOver = false;
+	cleanMovables();
+	for (int i = 0; i < 6; i++)
 	{
-		init();
+		cities[i].setAlive(true);
 	}
-	else
-	{
-		window->close();
-	}
+	backgroundColor = sf::Color(0, 0, 0);
+	currentLevel = 0;
+	nrOfMeteorsLeftTilNextLevel = 0;
+	missileBase.setAmmunition(settings->ammunitionPerLevel);
+	score.resetScore();
+	dropMeteorWave();
 }

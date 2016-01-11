@@ -23,7 +23,7 @@ Projectile::Projectile(const ProjectileParameters& mp)
 		isWaveSpawner = false;
 	}
 	origToDest = destination - origin;
-	origToDestDist = sqrtf(origToDest.x * origToDest.x + origToDest.y * origToDest.y);
+	origToDestDist = getVectorLength(origToDest);
 }
 
 Projectile::~Projectile()
@@ -34,8 +34,9 @@ Projectile::~Projectile()
 void Projectile::update(std::vector<Explosion*>* explosions)
 {
 	sf::Vector2f currPosToDest = currentPosition - destination;
-	float currPosToDestDist = sqrtf(currPosToDest.x * currPosToDest.x + currPosToDest.y * currPosToDest.y);
-	if (currPosToDestDist <= speed || dying)
+	float currPosToDestDist = getVectorLength(currPosToDest);
+
+	if (currPosToDestDist <= speed || dying) //Kills the projectile.
 	{
 		alive = false;
 		if (currPosToDestDist <= speed)
@@ -44,14 +45,13 @@ void Projectile::update(std::vector<Explosion*>* explosions)
 		}
 		explosions->push_back(new Explosion(projectileType, currentPosition, explosionMaximumRadius, explosionPropagationSpeed, explosionColor));
 	}
-	else
+	else //Moves the projectile along it's path.
 	{
 		sf::Vector2f origToCurrPos = currentPosition - origin;
-		float origToCurrPosDist = sqrtf(origToCurrPos.x * origToCurrPos.x + origToCurrPos.y * origToCurrPos.y);
+		float origToCurrPosDist = getVectorLength(origToCurrPos);
 		origToCurrPosDist += speed;
 
-		//Avoid division with zero
-		if (origToCurrPosDist > std::numeric_limits<float>::epsilon())
+		if (origToCurrPosDist > std::numeric_limits<float>::epsilon()) //Avoid division with zero
 		{
 			float distanceFactor = origToCurrPosDist / origToDestDist;
 			currentPosition = origin + origToDest * distanceFactor;

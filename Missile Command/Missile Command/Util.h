@@ -1,4 +1,5 @@
 #pragma once
+#include "SettingsParser.h"
 
 enum ProjectileType
 {
@@ -27,6 +28,7 @@ inline sf::Vector2f getCircleCenter(sf::CircleShape circle)
 	return circleCenter;
 }
 
+//Returns true if the point is within the circle.
 inline bool pointCircleCollision(sf::Vector2f point, sf::CircleShape circle)
 {
 	sf::Vector2f circleCenter = getCircleCenter(circle);
@@ -41,43 +43,83 @@ inline bool pointCircleCollision(sf::Vector2f point, sf::CircleShape circle)
 	return false;
 }
 
-inline bool pointRectangleCollision(sf::Vector2f point, sf::RectangleShape rectangle)
+//Returns val within the boundaries of minVal and maxVal.
+inline float clamp(float val, float minVal, float maxVal) 
 {
-	sf::Vector2f rectangleTopLeft = rectangle.getPosition();
-	sf::Vector2f rectangleBottomRight = rectangle.getPosition() + rectangle.getPoint(2);
-	if (point.x < rectangleTopLeft.x)
-	{
-		return false;
-	}
-	if (point.x > rectangleBottomRight.x)
-	{
-		return false;
-	}
-	if (point.y < rectangleTopLeft.y)
-	{
-		return false;
-	}
-	if (point.y > rectangleTopLeft.y)
-	{
-		return false;
-	}
-	return true;
+	float clampedToMin = std::min(maxVal, val);
+	float clampedToMax = std::max(minVal, clampedToMin);
+	return clampedToMax;
 }
 
-inline bool rectangleSphereCollision(sf::RectangleShape rectangle, sf::CircleShape circle)
+inline float getVectorLength(sf::Vector2f vec)
 {
-	if (pointRectangleCollision(getCircleCenter(circle), rectangle))
+	return std::sqrtf(vec.x * vec.x + vec.y * vec.y);
+}
+
+//Returns true if the circle and the rectangle overlap.
+inline bool rectangleCircleCollision(sf::RectangleShape rectangle, sf::CircleShape circle)
+{
+	sf::Vector2f circleCenter = getCircleCenter(circle);
+	float circleRadius = circle.getRadius();
+	sf::Vector2f rectangleTopLeft = rectangle.getPosition();
+	sf::Vector2f rectangleSize = rectangle.getSize();
+
+	//Calculate the nearest point to the circle's center from within the rectangle.
+	sf::Vector2f nearestPointInRectangle;
+	nearestPointInRectangle.x = clamp(circleCenter.x, rectangleTopLeft.x, rectangleTopLeft.x + rectangleSize.x);
+	nearestPointInRectangle.y = clamp(circleCenter.y, rectangleTopLeft.y, rectangleTopLeft.y + rectangleSize.y);
+
+	//Calculate the distance from the the nearest point to the circle's center.
+	sf::Vector2f nearestToCircleVec;
+	nearestToCircleVec.x = circleCenter.x - nearestPointInRectangle.x;
+	nearestToCircleVec.y = circleCenter.y - nearestPointInRectangle.y;
+	float nearestToCircleDist = getVectorLength(nearestToCircleVec);
+
+	if (nearestToCircleDist < circleRadius)
+	{
+		return true;
+	}
+	return false;
+}
+
+//Returns true if the point is within the rectangle.
+inline bool rectanglePointCollision(sf::RectangleShape rectangle, sf::Vector2i point)
+{
+	sf::Vector2f rectangleTopLeft = rectangle.getPosition();
+	sf::Vector2f rectangleBottomRight = rectangleTopLeft + rectangle.getSize();
+
+	if (point.x > rectangleTopLeft.x && point.x < rectangleBottomRight.x && 
+		point.y > rectangleTopLeft.y && point.y < rectangleBottomRight.y)
 	{
 		return true;
 	}
 
-	for (int i = 0; i < 4; i++)
-	{
-		if (pointCircleCollision(rectangle.getPosition() + rectangle.getPoint(i), circle))
-		{
-			return true;
-		}
-	}
-
 	return false;
+}
+
+//Scales mouse coordinates to the render resolution when the view port has been scaled.
+inline sf::Vector2i getScaledMouseCoords(sf::RenderWindow* window, Settings* settings)
+{
+	sf::Vector2i mouseCoords = sf::Mouse::getPosition(*window);
+	sf::Vector2f windowSize = static_cast<sf::Vector2f>(window->getSize());
+	sf::Vector2f scalingFactor
+		(
+			windowSize.x / settings->resolution.x,
+			windowSize.y / settings->resolution.y
+		);
+	sf::Vector2i scaledMouseCoords
+		(
+			static_cast<int>(mouseCoords.x / scalingFactor.x), 
+			static_cast<int>(mouseCoords.y / scalingFactor.y)
+		);
+	return scaledMouseCoords;
+}
+
+inline sf::Vector2f getRectangleCenterPosition(sf::RectangleShape rectangle)
+{
+	sf::Vector2f centerPos = rectangle.getPosition();
+	sf::Vector2f rectangleSize = rectangle.getSize();
+	centerPos.x += rectangleSize.x / 2;
+	centerPos.y += rectangleSize.y / 2;
+	return centerPos;
 }

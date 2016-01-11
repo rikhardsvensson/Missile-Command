@@ -4,6 +4,10 @@ SettingsParser::SettingsParser()
 {
 	settings = new Settings();
 	readSettings();
+	if (!settings->font.loadFromFile(settings->fontPath))
+	{
+		//TODO: error handling
+	}
 }
 
 SettingsParser::~SettingsParser()

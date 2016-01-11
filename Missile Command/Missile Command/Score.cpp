@@ -6,13 +6,13 @@ Score::Score()
 	scoreText = sf::Text();
 }
 
-Score::Score(sf::Font* font, sf::Vector2f position, sf::Color color, int characterSize, int highScore, std::string scoreName, std::string highScoreName)
+Score::Score(Settings* settings, sf::Vector2f position, sf::Color color)
 {
 	score = 0;
-	this->highScore = highScore;
-	this->scoreName = scoreName;
-	this->highScoreName = highScoreName;
-	scoreText = sf::Text("", *font, characterSize);
+	this->highScore = settings->highScore;
+	this->scoreName = settings->scoreName;
+	this->highScoreName = settings->highScoreName;
+	scoreText = sf::Text("", settings->font, settings->scoreTextCharacterSize);
 	updateScoreText();
 	scoreText.setColor(color);
 	setPosition(position);

@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "Util.h"
 
 class City
 {
@@ -11,7 +12,7 @@ public:
 
 	sf::RectangleShape getCityShape() const;
 	void setCityShape(sf::RectangleShape val);
-	sf::Vector2f getMeteorTarget();
+	sf::Vector2f getMeteorTarget(); //Used when creating meteors to get the city's center position.
 	bool getAlive() const;
 	void setAlive(bool val);
 private:
