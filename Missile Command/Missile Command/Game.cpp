@@ -34,39 +34,14 @@ void Game::init()
 	gameOverScreen.init(settings);
 }
 
-void Game::createWindow(bool fullscreen)
+int Game::run()
 {
-	sf::VideoMode videoMode = sf::VideoMode(settings->resolution.x, settings->resolution.y, 32);
-	if (fullscreen)
+	while (window->isOpen())
 	{
-		window->create(videoMode, "Missile Command", sf::Style::Fullscreen);
+		update();
+		render();
 	}
-	else
-	{
-		window->create(videoMode, "Missile Command", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
-	}
-	window->setVerticalSyncEnabled(true);
-}
-
-void Game::cleanMovables()
-{
-	for (unsigned i = 0; i < missiles.size(); i++)
-	{
-		delete missiles[i];
-	}
-	missiles.clear();
-
-	for (unsigned i = 0; i < explosions.size(); i++)
-	{
-		delete explosions[i];
-	}
-	explosions.clear();
-
-	for (unsigned i = 0; i < meteors.size(); i++)
-	{
-		delete meteors[i];
-	}
-	meteors.clear();
+	return 0;
 }
 
 void Game::initGround()
@@ -121,14 +96,18 @@ void Game::initProjectileParameters()
 	meteorParameters.explosionPropagationSpeed = missileParameters.explosionPropagationSpeed = settings->explosionPropagationSpeed;
 }
 
-int Game::run()
+void Game::createWindow(bool fullscreen)
 {
-	while (window->isOpen())
+	sf::VideoMode videoMode = sf::VideoMode(settings->resolution.x, settings->resolution.y, 32);
+	if (fullscreen)
 	{
-		update();
-		render();
+		window->create(videoMode, "Missile Command", sf::Style::Fullscreen);
 	}
-	return 0;
+	else
+	{
+		window->create(videoMode, "Missile Command", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
+	}
+	window->setVerticalSyncEnabled(true);
 }
 
 void Game::update()
@@ -239,6 +218,20 @@ void Game::handleInput()
 	}
 }
 
+void Game::fireMissile(sf::Vector2i mousePos)
+{
+	if (mousePos.y < missileBase.getMissileBaseShape().getPosition().y)
+	{
+		if (missileBase.getAmmunition() > 0)
+		{
+			missileParameters.destination = sf::Vector2f(mousePos);
+			missiles.push_back(new Projectile(missileParameters));
+
+			missileBase.offsetAmmunition(-1);
+		}
+	}
+}
+
 void Game::solveCollisions()
 {
 	for (auto explosion : explosions)
@@ -277,55 +270,6 @@ void Game::solveCollisions()
 	}
 }
 
-void Game::render()
-{
-	window->clear(backgroundColor);
-
-	window->draw(groundShape);
-	for (int i = 0; i < 6; i++)
-	{
-		cities[i].render(window);
-	}
-
-	missileBase.render(window);
-
-	score.render(window);
-
-	for (auto missile : missiles)
-	{
-		missile->render(window);
-	}
-	for (auto meteor : meteors)
-	{
-		meteor->render(window);
-	}
-	for (auto explosion : explosions)
-	{
-		explosion->render(window);
-	}
-
-	if (isGameOver)
-	{
-		gameOverScreen.render(window);
-	}
-
-	window->display();
-}
-
-void Game::fireMissile(sf::Vector2i mousePos)
-{
-	if (mousePos.y < missileBase.getMissileBaseShape().getPosition().y)
-	{
-		if (missileBase.getAmmunition() > 0)
-		{
-			missileParameters.destination = sf::Vector2f(mousePos);
-			missiles.push_back(new Projectile(missileParameters));
-
-			missileBase.offsetAmmunition(-1);
-		}
-	}
-}
-
 void Game::dropMeteor(bool isWaveSpawner)
 {
 	std::uniform_real_distribution<float> randMeteorOrigin(0.0, static_cast<float>(settings->resolution.x));
@@ -348,6 +292,37 @@ void Game::dropMeteor(bool isWaveSpawner)
 	meteors.push_back(new Projectile(meteorParameters));
 
 	nrOfMeteorsLeftTilNextLevel--;
+}
+
+void Game::dropMeteorWave()
+{
+	std::uniform_int_distribution<int> randNrOfMeteorsInWave(1, settings->maxNrOfMeteorsInWave);
+	std::uniform_int_distribution<int> randNrOfSpawnersInWave(1, settings->maxNrOfSpawnersInWave);
+
+	int nrOfMeteorsInWave = randNrOfMeteorsInWave(*mt);
+	if (nrOfMeteorsInWave > nrOfMeteorsLeftTilNextLevel)
+	{
+		nrOfMeteorsInWave = nrOfMeteorsLeftTilNextLevel;
+	}
+
+	int nrOfSpawnersInWave = randNrOfSpawnersInWave(*mt);
+	if (nrOfSpawnersInWave > nrOfMeteorsInWave)
+	{
+		nrOfSpawnersInWave = nrOfMeteorsInWave;
+	}
+
+	while (nrOfSpawnersInWave > 0)
+	{
+		dropMeteor(true);
+		nrOfSpawnersInWave--;
+		nrOfMeteorsInWave--;
+	}
+
+	while (nrOfMeteorsInWave > 0)
+	{
+		dropMeteor(false);
+		nrOfMeteorsInWave--;
+	}
 }
 
 void Game::increaseLevel()
@@ -392,37 +367,6 @@ void Game::setRandomBackgroundColor()
 	backgroundColor = sf::Color(randColorValue(*mt), randColorValue(*mt), randColorValue(*mt));
 }
 
-void Game::dropMeteorWave()
-{
-	std::uniform_int_distribution<int> randNrOfMeteorsInWave(1, settings->maxNrOfMeteorsInWave);
-	std::uniform_int_distribution<int> randNrOfSpawnersInWave(1, settings->maxNrOfSpawnersInWave);
-
-	int nrOfMeteorsInWave = randNrOfMeteorsInWave(*mt);
-	if (nrOfMeteorsInWave > nrOfMeteorsLeftTilNextLevel)
-	{
-		nrOfMeteorsInWave = nrOfMeteorsLeftTilNextLevel;
-	}
-
-	int nrOfSpawnersInWave = randNrOfSpawnersInWave(*mt);
-	if (nrOfSpawnersInWave > nrOfMeteorsInWave)
-	{
-		nrOfSpawnersInWave = nrOfMeteorsInWave;
-	}
-
-	while (nrOfSpawnersInWave > 0)
-	{
-		dropMeteor(true);
-		nrOfSpawnersInWave--;
-		nrOfMeteorsInWave--;
-	}
-
-	while (nrOfMeteorsInWave > 0)
-	{
-		dropMeteor(false);
-		nrOfMeteorsInWave--;
-	}
-}
-
 void Game::resetGame()
 {
 	isGameOver = false;
@@ -437,4 +381,60 @@ void Game::resetGame()
 	missileBase.setAmmunition(settings->ammunitionPerLevel);
 	score.resetScore();
 	dropMeteorWave();
+}
+
+void Game::cleanMovables()
+{
+	for (unsigned i = 0; i < missiles.size(); i++)
+	{
+		delete missiles[i];
+	}
+	missiles.clear();
+
+	for (unsigned i = 0; i < explosions.size(); i++)
+	{
+		delete explosions[i];
+	}
+	explosions.clear();
+
+	for (unsigned i = 0; i < meteors.size(); i++)
+	{
+		delete meteors[i];
+	}
+	meteors.clear();
+}
+
+void Game::render()
+{
+	window->clear(backgroundColor);
+
+	window->draw(groundShape);
+	for (int i = 0; i < 6; i++)
+	{
+		cities[i].render(window);
+	}
+
+	missileBase.render(window);
+
+	score.render(window);
+
+	for (auto missile : missiles)
+	{
+		missile->render(window);
+	}
+	for (auto meteor : meteors)
+	{
+		meteor->render(window);
+	}
+	for (auto explosion : explosions)
+	{
+		explosion->render(window);
+	}
+
+	if (isGameOver)
+	{
+		gameOverScreen.render(window);
+	}
+
+	window->display();
 }

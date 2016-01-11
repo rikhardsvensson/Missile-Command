@@ -44,20 +44,20 @@ private:
 	int currentLevel;
 	int nrOfMeteorsLeftTilNextLevel;
 
-	void createWindow(bool fullscreen);
-	void cleanMovables();
 	void initGround();
 	void initMissileBase();
 	void initCities();
 	void initProjectileParameters();
+	void createWindow(bool fullscreen);
 	void update();
 	void handleInput();
-	void solveCollisions();
-	void render();
 	void fireMissile(sf::Vector2i mousePos);
+	void solveCollisions();
 	void dropMeteor(bool isWaveSpawner);
+	void dropMeteorWave();
 	void increaseLevel();
 	void setRandomBackgroundColor();
-	void dropMeteorWave();
 	void resetGame();
+	void cleanMovables();
+	void render();
 };
