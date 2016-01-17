@@ -64,17 +64,17 @@ void Score::setCharacterSize(int val)
 	scoreText.setCharacterSize(val);
 }
 
-void Score::setFont(sf::Font val)
+void Score::setFont(const sf::Font& val)
 {
 	scoreText.setFont(val);
 }
 
-void Score::setPosition(sf::Vector2f val)
+void Score::setPosition(const sf::Vector2f& val)
 {
 	scoreText.setPosition(val);
 }
 
-void Score::setColor(sf::Color val)
+void Score::setColor(const sf::Color& val)
 {
 	scoreText.setColor(val);
 }

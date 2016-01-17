@@ -22,7 +22,7 @@ void City::render(sf::RenderWindow* window)
 	}
 }
 
-void City::setCityShape(sf::RectangleShape val)
+void City::setCityShape(const sf::RectangleShape& val)
 {
 	cityShape = val;
 
@@ -31,7 +31,7 @@ void City::setCityShape(sf::RectangleShape val)
 	deadCityShape.setScale(1.0f, 0.2f);
 }
 
-sf::Vector2f City::getMeteorTarget()
+sf::Vector2f City::getMeteorTarget() const
 {
 	sf::Vector2f centerPos;
 	if (alive)

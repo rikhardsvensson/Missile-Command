@@ -19,9 +19,9 @@ public:
 	void offsetScore(int val);
 	void resetScore();
 	void setCharacterSize(int val);
-	void setFont(sf::Font val);
-	void setPosition(sf::Vector2f val);
-	void setColor(sf::Color val);
+	void setFont(const sf::Font& val);
+	void setPosition(const sf::Vector2f& val);
+	void setColor(const sf::Color& val);
 
 private:
 	int score;

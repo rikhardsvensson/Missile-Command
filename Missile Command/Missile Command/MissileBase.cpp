@@ -31,12 +31,12 @@ void MissileBase::render(sf::RenderWindow* window)
 	window->draw(ammunitionText);
 }
 
-void MissileBase::setMissileBaseShape(sf::RectangleShape val)
+void MissileBase::setMissileBaseShape(const sf::RectangleShape& val)
 {
 	missileBaseShape = val;
 }
 
-sf::Vector2f MissileBase::getMeteorTarget()
+sf::Vector2f MissileBase::getMeteorTarget() const
 {
 	return getRectangleCenterPosition(missileBaseShape);
 }
@@ -46,7 +46,7 @@ sf::RectangleShape MissileBase::getMissileBaseShape() const
 	return missileBaseShape;
 }
 
-sf::Vector2f MissileBase::getMissileOrigin()
+sf::Vector2f MissileBase::getMissileOrigin() const
 {
 	return missileOrigin;
 }

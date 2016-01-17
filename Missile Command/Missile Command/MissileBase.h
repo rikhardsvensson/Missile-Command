@@ -13,9 +13,9 @@ public:
 	void render(sf::RenderWindow* window);
 
 	sf::RectangleShape getMissileBaseShape() const;
-	void setMissileBaseShape(sf::RectangleShape val);
-	sf::Vector2f getMeteorTarget(); //Used when creating meteors to get the missile base's center position.
-	sf::Vector2f getMissileOrigin(); //Returns the position at which new missiles are first created.
+	void setMissileBaseShape(const sf::RectangleShape& val);
+	sf::Vector2f getMeteorTarget() const; //Used when creating meteors to get the missile base's center position.
+	sf::Vector2f getMissileOrigin() const; //Returns the position at which new missiles are first created.
 	int getAmmunition() const;
 	void setAmmunition(int val);
 	void offsetAmmunition(int val);

@@ -19,7 +19,7 @@ struct ProjectileParameters
 	bool isWaveSpawner;
 };
 
-inline sf::Vector2f getCircleCenter(sf::CircleShape circle)
+inline sf::Vector2f getCircleCenter(const sf::CircleShape& circle)
 {
 	float circleRadius = circle.getRadius();
 	sf::Vector2f circleCenter = circle.getPosition();
@@ -29,7 +29,7 @@ inline sf::Vector2f getCircleCenter(sf::CircleShape circle)
 }
 
 //Returns true if the point is within the circle.
-inline bool pointCircleCollision(sf::Vector2f point, sf::CircleShape circle)
+inline bool pointCircleCollision(const sf::Vector2f& point, const sf::CircleShape& circle)
 {
 	sf::Vector2f circleCenter = getCircleCenter(circle);
 	
@@ -51,13 +51,13 @@ inline float clamp(float val, float minVal, float maxVal)
 	return clampedToMax;
 }
 
-inline float getVectorLength(sf::Vector2f vec)
+inline float getVectorLength(const sf::Vector2f& vec)
 {
 	return std::sqrtf(vec.x * vec.x + vec.y * vec.y);
 }
 
 //Returns true if the circle and the rectangle overlap.
-inline bool rectangleCircleCollision(sf::RectangleShape rectangle, sf::CircleShape circle)
+inline bool rectangleCircleCollision(const sf::RectangleShape& rectangle, const sf::CircleShape& circle)
 {
 	sf::Vector2f circleCenter = getCircleCenter(circle);
 	float circleRadius = circle.getRadius();
@@ -83,7 +83,7 @@ inline bool rectangleCircleCollision(sf::RectangleShape rectangle, sf::CircleSha
 }
 
 //Returns true if the point is within the rectangle.
-inline bool rectanglePointCollision(sf::RectangleShape rectangle, sf::Vector2i point)
+inline bool rectanglePointCollision(const sf::RectangleShape& rectangle, const sf::Vector2i& point)
 {
 	sf::Vector2f rectangleTopLeft = rectangle.getPosition();
 	sf::Vector2f rectangleBottomRight = rectangleTopLeft + rectangle.getSize();
@@ -98,7 +98,7 @@ inline bool rectanglePointCollision(sf::RectangleShape rectangle, sf::Vector2i p
 }
 
 //Scales mouse coordinates to the render resolution when the view port has been scaled.
-inline sf::Vector2i getScaledMouseCoords(sf::RenderWindow* window, Settings* settings)
+inline sf::Vector2i getScaledMouseCoords(const sf::RenderWindow* window, const Settings* settings)
 {
 	sf::Vector2i mouseCoords = sf::Mouse::getPosition(*window);
 	sf::Vector2f windowSize = static_cast<sf::Vector2f>(window->getSize());
@@ -115,7 +115,7 @@ inline sf::Vector2i getScaledMouseCoords(sf::RenderWindow* window, Settings* set
 	return scaledMouseCoords;
 }
 
-inline sf::Vector2f getRectangleCenterPosition(sf::RectangleShape rectangle)
+inline sf::Vector2f getRectangleCenterPosition(const sf::RectangleShape& rectangle)
 {
 	sf::Vector2f centerPos = rectangle.getPosition();
 	sf::Vector2f rectangleSize = rectangle.getSize();
