@@ -1,28 +1,27 @@
 #include "Game.h"
 
+Game::Game()
+{
+
+}
+
 Game::Game(std::mt19937* mt)
 {
-	settings = settingsParser.getSettings();
-
-	window = new sf::RenderWindow();
-	createWindow(settings->fullscreen);
-
 	this->mt = mt;
 }
 
 Game::~Game()
 {
-	score.updateHighScore();
-	settings->highScore = score.getHighScore();
-	settingsParser.setSettings(settings);
 	cleanMovables();
-	delete window;
 }
 
-void Game::init()
+void Game::init(sf::RenderWindow* window, Settings* settings)
 {
-	isGameOver = false;
+	this->settings = settings;
+	this->window = window;
+
 	backgroundColor = sf::Color(0, 0, 0);
+	isGameOver = false;
 	currentLevel = 0;
 	nrOfMeteorsLeftTilNextLevel = 0;
 
@@ -31,17 +30,6 @@ void Game::init()
 	initCities();
 	initProjectileParameters();
 	score = Score(settings, sf::Vector2f(5, 5), sf::Color::White);
-	gameOverScreen.init(settings);
-}
-
-int Game::run()
-{
-	while (window->isOpen())
-	{
-		update();
-		render();
-	}
-	return 0;
 }
 
 void Game::initGround()
@@ -96,33 +84,19 @@ void Game::initProjectileParameters()
 	meteorParameters.explosionPropagationSpeed = missileParameters.explosionPropagationSpeed = settings->explosionPropagationSpeed;
 }
 
-void Game::createWindow(bool fullscreen)
+int Game::update(sf::Event* event)
 {
-	sf::VideoMode videoMode = sf::VideoMode(settings->resolution.x, settings->resolution.y, 32);
-	if (fullscreen)
-	{
-		window->create(videoMode, "Missile Command", sf::Style::Fullscreen);
-	}
-	else
-	{
-		window->create(videoMode, "Missile Command", sf::Style::Titlebar | sf::Style::Close | sf::Style::Resize);
-	}
-	window->setVerticalSyncEnabled(true);
-}
-
-void Game::update()
-{
-	handleInput();
+	currentState = State::GAME;
 
 	if (isGameOver)
 	{
-		if (gameOverScreen.update(window, settings) == GameOverScreen::RESTART)
-		{
-			resetGame();
-		}
+		score.updateHighScore();
+		currentState =  State::GAME_OVER;
 	}
 	else
 	{
+		handleInput(event);
+
 		solveCollisions();
 
 		for (unsigned i = 0; i < missiles.size(); i++)
@@ -180,41 +154,32 @@ void Game::update()
 			dropMeteorWave();
 		}
 	}
+
+	return currentState;
 }
 
-void Game::handleInput()
+void Game::handleInput(sf::Event* event)
 {
-	sf::Event event;
-	while (window->pollEvent(event))
+	switch (event->type)
 	{
-		switch (event.type)
+	case sf::Event::MouseButtonPressed:
+		if (event->mouseButton.button == sf::Mouse::Left)
 		{
-		case sf::Event::Closed:
-			window->close();
-			break;
-		case sf::Event::MouseButtonPressed:
-			if (event.mouseButton.button == sf::Mouse::Left)
+			if (!isGameOver)
 			{
-				if (!isGameOver)
-				{
-					fireMissile(getScaledMouseCoords(window, settings));
-				}
+				fireMissile(getScaledMouseCoords(window, settings));
 			}
-			break;
-		case sf::Event::KeyPressed:
-			if (event.key.code == sf::Keyboard::Escape)
-			{
-				window->close();
-			}
-			if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::RAlt)) && event.key.code == sf::Keyboard::Return)
-			{
-				settings->fullscreen = !settings->fullscreen;
-				createWindow(settings->fullscreen);
-			}
-			break;
-		default:
-			break;
 		}
+		break;
+	case sf::Event::KeyReleased:
+		if (event->key.code == sf::Keyboard::Escape)
+		{
+			score.updateHighScore();
+			currentState = State::MENU;
+		}
+		break;
+	default:
+		break;
 	}
 }
 
@@ -430,11 +395,4 @@ void Game::render()
 	{
 		explosion->render(window);
 	}
-
-	if (isGameOver)
-	{
-		gameOverScreen.render(window);
-	}
-
-	window->display();
 }

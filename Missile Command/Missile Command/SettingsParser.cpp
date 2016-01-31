@@ -3,6 +3,8 @@
 SettingsParser::SettingsParser()
 {
 	settings = new Settings();
+	settings->highScoreList.assign(5, 0);
+
 	readSettings();
 	if (!settings->font.loadFromFile(settings->fontPath))
 	{
@@ -39,7 +41,16 @@ void SettingsParser::readSettings()
 	std::ifstream inStream("settings.json");
 	if (inStream.is_open())
 	{
-		cereal::JSONInputArchive inArchive(inStream);
-		inArchive(*settings);
+		try
+		{
+			cereal::JSONInputArchive inArchive(inStream);
+			inArchive(*settings);
+		}
+		catch (...)
+		{
+			delete settings;
+			settings = new Settings();
+			settings->highScoreList.assign(5, 0);
+		}
 	}
 }

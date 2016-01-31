@@ -1,6 +1,11 @@
 #pragma once
 #include "SettingsParser.h"
 
+enum State
+{
+	MENU, GAME, GAME_OVER
+};
+
 enum ProjectileType
 {
 	MISSILE, METEOR

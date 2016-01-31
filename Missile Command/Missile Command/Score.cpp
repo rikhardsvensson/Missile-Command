@@ -8,8 +8,10 @@ Score::Score()
 
 Score::Score(Settings* settings, sf::Vector2f position, sf::Color color)
 {
+	this->settings = settings;
 	score = 0;
-	this->highScore = settings->highScore;
+	currentScorePosition = settings->highScoreList.size();
+	this->currentHighScore = settings->highScoreList[0];
 	this->scoreName = settings->scoreName;
 	this->highScoreName = settings->highScoreName;
 	scoreText = sf::Text("", settings->font, settings->scoreTextCharacterSize);
@@ -35,22 +37,40 @@ int Score::getScore() const
 
 int Score::getHighScore() const
 {
-	return highScore;
+	return currentHighScore;
 }
 
 void Score::updateHighScore()
 {
-	if (score > highScore)
+	if (currentScorePosition < settings->highScoreList.size())
 	{
-		highScore = score;
-		updateScoreText();
+		settings->highScoreList.erase(settings->highScoreList.begin() + currentScorePosition);
 	}
+
+	bool scoreListUpdated = false;
+	for (int i = currentScorePosition - 1; i >= 0; i--)
+	{
+		if (score > settings->highScoreList[i])
+		{
+			currentScorePosition = i;
+		}
+	}
+
+	settings->highScoreList.insert(settings->highScoreList.begin() + currentScorePosition, score);
+
+	while (settings->highScoreList.size() > 5)
+	{
+		settings->highScoreList.pop_back();
+	}
+
+	currentHighScore = settings->highScoreList[0];
+	updateScoreText();
 }
 
 void Score::offsetScore(int val)
 {
 	score += val;
-	updateScoreText();
+	updateHighScore();
 }
 
 void Score::resetScore()
@@ -83,7 +103,7 @@ void Score::updateScoreText()
 {
 	std::string outputText;
 	outputText += highScoreName;
-	outputText += std::to_string(highScore);
+	outputText += std::to_string(currentHighScore);
 	outputText += "\n" + scoreName;
 	outputText += std::to_string(score);
 	scoreText.setString(outputText);

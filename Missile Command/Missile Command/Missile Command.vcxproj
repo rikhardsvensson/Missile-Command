@@ -98,11 +98,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="City.cpp" />
     <ClCompile Include="Explosion.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="GameOverScreen.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="MissileBase.cpp" />
@@ -110,11 +111,12 @@
     <ClCompile Include="SettingsParser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Application.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="City.h" />
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="GameOverScreen.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="MissileBase.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Score.h" />

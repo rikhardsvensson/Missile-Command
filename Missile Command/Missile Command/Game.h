@@ -5,17 +5,18 @@
 #include "Projectile.h"
 #include "Explosion.h"
 #include "Score.h"
-#include "GameOverScreen.h"
-#include "SettingsParser.h"
 
 class Game
 {
 public:
+	Game();
 	Game(std::mt19937* mt);
 	~Game();
 
-	int run();
-	void init();
+	void init(sf::RenderWindow* window, Settings* settings);
+	void resetGame();
+	int update(sf::Event* event);
+	void render();
 
 private:
 	//Necessities
@@ -23,7 +24,6 @@ private:
 	std::mt19937* mt;
 
 	//Visuals
-	GameOverScreen gameOverScreen;
 	sf::Color backgroundColor;
 	sf::RectangleShape groundShape;
 	MissileBase missileBase;
@@ -36,28 +36,24 @@ private:
 	std::vector<Explosion*> explosions;
 
 	//Utils
-	SettingsParser settingsParser;
 	Settings* settings;
 	ProjectileParameters missileParameters;
 	ProjectileParameters meteorParameters;
 	bool isGameOver;
 	int currentLevel;
 	int nrOfMeteorsLeftTilNextLevel;
+	int currentState;
 
 	void initGround();
 	void initMissileBase();
 	void initCities();
 	void initProjectileParameters();
-	void createWindow(bool fullscreen);
-	void update();
-	void handleInput();
+	void handleInput(sf::Event* event);
 	void fireMissile(sf::Vector2i mousePos);
 	void solveCollisions();
 	void dropMeteor(bool isWaveSpawner);
 	void dropMeteorWave();
 	void increaseLevel();
 	void setRandomBackgroundColor();
-	void resetGame();
 	void cleanMovables();
-	void render();
 };

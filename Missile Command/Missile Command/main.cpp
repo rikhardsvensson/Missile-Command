@@ -1,4 +1,4 @@
-#include "Game.h"
+#include "Application.h"
 
 int main()
 {
@@ -8,11 +8,9 @@ int main()
 	_CrtSetDbgFlag(flag);
 	//_CrtSetBreakAlloc(434);
 #endif
-
 	std::random_device rd;
 	std::mt19937 mt(rd());
 
-	Game g = Game(&mt);
-	g.init();
-	return g.run();
+	Application app = Application(&mt);
+	return app.run();
 }

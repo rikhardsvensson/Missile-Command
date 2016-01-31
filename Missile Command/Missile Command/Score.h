@@ -24,8 +24,10 @@ public:
 	void setColor(const sf::Color& val);
 
 private:
+	Settings* settings;
 	int score;
-	int highScore;
+	int currentHighScore;
+	int currentScorePosition;
 	sf::Text scoreText;
 	std::string scoreName;
 	std::string highScoreName;
